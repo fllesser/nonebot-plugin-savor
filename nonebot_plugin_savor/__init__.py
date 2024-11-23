@@ -6,7 +6,13 @@ from nonebot.matcher import Matcher
 from nonebot.params import Arg
 from nonebot.typing import T_State
 
-from .savor import savor_image
+#from .savor import savor_image
+
+
+from gradio_client import Client,handle_file
+
+client = Client("hysts/DeepDanbooru")
+
 
 analysis = on_command("鉴赏图片", aliases={"分析图片", "解析图片"}, block=True)
 
@@ -30,7 +36,8 @@ async def get_image(state: T_State, imgs: Message = Arg()):
 async def analysis_handle(state: T_State):
     await analysis.send("正在分析图像, 请稍等……")
     try:
-        result = await savor_image(state["urls"][0])
+        result = client.predict(image=handle_file(state['urls'][0]),score_threshold=0.5,api_name="/predict")
+
     except Exception as e:
         logger.opt(exception=e).error("分析图像失败")
         await analysis.finish("分析失败, 请稍后重试", reply_message=True)
