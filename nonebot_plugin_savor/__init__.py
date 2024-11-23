@@ -36,8 +36,8 @@ async def get_image(state: T_State, imgs: Message = Arg()):
 async def analysis_handle(state: T_State):
     await analysis.send("正在分析图像, 请稍等……")
     try:
-        result = client.predict(image=handle_file(state['urls'][0]),score_threshold=0.5,api_name="/predict")
-
+        res = client.predict(image=handle_file(state['urls'][0]),score_threshold=0.5,api_name="/predict")
+        result=json.loads(res)["output"]["data"][0]["confidences"]
     except Exception as e:
         logger.opt(exception=e).error("分析图像失败")
         await analysis.finish("分析失败, 请稍后重试", reply_message=True)
