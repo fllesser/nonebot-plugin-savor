@@ -35,10 +35,12 @@ async def analysis_handle(state: T_State):
     await analysis.send("正在分析图像, 请稍等……")
     try:
         client = Client("hysts/DeepDanbooru")
-        res = client.predict(image=handle_file(state['urls'][0]),score_threshold=0.5,api_name="/predict")
+        img = state["urls"][0]
+        logger.info(f"img-url: {img}")
+        res = await client.predict(image=handle_file(img),score_threshold=0.5, api_name="/predict")
         result=json.loads(res)["output"]["data"][0]["confidences"]
     except Exception as e:
-        logger.opt(exception=e).error(e + '')
+        logger.opt(exception=e).error("分析失败")
         await analysis.finish("分析失败, 请稍后重试", reply_message=True)
     msg = ", ".join(i["label"] for i in result if not i["label"].startswith("rating:"))
     await analysis.finish(msg, reply_message=True)
